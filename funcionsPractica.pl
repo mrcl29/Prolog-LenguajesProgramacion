@@ -3,20 +3,14 @@
 *   Pere Joan Vives Morey
 */
 
-Nono=[[verd,lila,vermell,vermell], 
- [blau,verd,blau,blau], 
- [lila,blau,verd,verd],  
- [verd,blau,vermell,verd]].
-
 %Funcions_Auxiliars
 borrar(_,[],[]).
 borrar(X,[X|L],L).
 borrar(X,[Y|L1],[Y|L2]):-borrar(X,L1,L2).
 
 %Imprimir_Estructura_de_Dades
-escriuNonograma(Nono).
-escriuNonograma([]):-write([]).
-escriuNonograma([X|L1]):-write([X]),escriuNonograma([L1])
+escriuNonograma([]).
+escriuNonograma([X|L1]):-write(X),nl,escriuNonograma(L1).
 
 %Pintar_Pantalla
 mostraNonograma(Nono,Files,Columnes,IncFiles, IncColumnes).
