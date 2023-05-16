@@ -41,7 +41,15 @@ aplanar([X|L1],[X|L2]):-aplanar(L1,L2).
 agafar(1,[X|L],X).
 agafar(N,[X|L],Y):-N1 is N-1,agafar(N1,L,Y).
 
-%Dígit
+%Rotar_element_llista_cap_a_la_dreta
+rotardreta([L1],[Y|L2]):-darrer(L1,Y),rdc(L1,L2).
+rdc([X],[]).
+rdc([X|L1],[X|L2]):-rdc(L1,L2).
+
+%Rotar_element_llista_cap_a_la_dreta
+rotardreta([X|L1],L2):-append(L1,[X],L2).
+
+%Digit
 digit(X):- between(1,9,X).
 
 %Aritmograma
