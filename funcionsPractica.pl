@@ -9,6 +9,8 @@ borrar(X,[X|L],L).
 borrar(X,[Y|L1],[Y|L2]):-borrar(X,L1,L2).
 
 %Imprimir_Estructura_de_Dades
+
+
 escriuNonograma([]).
 escriuNonograma([X|L1]):-write(X),nl,escriuNonograma(L1).
 
