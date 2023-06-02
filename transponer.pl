@@ -37,3 +37,26 @@ imprimir_fila([Elemento|Resto]) :-
     write(Elemento),
     write(' '), % Separador entre elementos.
     imprimir_fila(Resto).
+
+genera(X,Y,A):-
+    atom_chars(X,L1),
+    atom_chars(Y,L2),
+    length(L1,LX),
+    length(L2,LY),
+    LX = LY,
+    genera_aux(L1,L2,L),
+    atom_chars(A,L).
+
+genera_aux([],[],[]).
+genera_aux([X|R1],[Y|R2],[X,Y|L3]):-genera_aux(R1,R2,L3).
+
+numeros_entre(X, Y, Lista) :-
+    X =< Y,
+    generar_lista(X, Y, Lista).
+
+generar_lista(X, Y, []) :-
+    X > Y.
+generar_lista(X, Y, [X|Lista]) :-
+    X =< Y,
+    X1 is X + 1,
+    generar_lista(X1, Y, Lista).
