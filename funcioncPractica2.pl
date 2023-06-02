@@ -16,8 +16,13 @@ escriuNonograma([]).
 escriuNonograma([X|L1]):-write(X),nl,escriuNonograma(L1).
 
 pintaFila([X],_,_,_) :- color(X), write('x').
-pintaFila([X|L],Files,Columnes, IncColumnes) :- color(X), write('x'), C1 is Columnes+IncColumnes, gotoXY(Files,C1), pintaFila(L,Files,C1,IncColumnes).
+pintaFila([X|L],Files,Columnes, IncColumnes) :- color(X), write('x'), 
+                C1 is Columnes+IncColumnes, gotoXY(Files,C1), pintaFila(L,Files,C1,IncColumnes).
 
-mostraNonograma([],_,_,_, _).
-mostraNonograma([X|L],Files,Columnes,IncFiles, IncColumnes) :- gotoXY(Columnes, Files),F1 is Files+IncFiles,  pintaFila(X,Files,Columnes,IncColumnes), 
-                                mostraNonograma(L,F1,Columnes,IncFiles,IncColumnes).
+
+mostraNonograma(L,Files,Columnes,IncFiles, IncColumnes) :- cls, mostraNonograma1(L,Files,Columnes,IncFiles,IncColumnes).
+
+mostraNonograma1([],_,_,_,_).
+mostraNonograma1([X|L],Files,Columnes,IncFiles, IncColumnes) :- gotoXY(Files, Columnes),
+                                F1 is Files+IncFiles,  pintaFila(X,Files,Columnes,IncColumnes), 
+                                mostraNonograma1(L,F1,Columnes,IncFiles,IncColumnes).
