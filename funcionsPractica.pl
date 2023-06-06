@@ -52,7 +52,7 @@ limpiar([Fila|Resto]) :-
     limpiar_aux(Fila),
     limpiar(Resto).
 limpiar_aux([]).
-limpiar_aux([Elemento|Resto]) :-
+limpiar_aux([_|Resto]) :-
     limpiar_aux(Resto).
 
 % Conta les aparicions de un element dins una llista
@@ -90,8 +90,9 @@ imprimir_fila([X|Xs]) :-
     imprimir_fila(Xs).
 
 % Predicado principal para imprimir la lista de listas
-imprimir_lista(Lista, NumColumnas, NumFilas, SeparacionColumnas, SeparacionFilas) :-
-    imprimir_filas(Lista, NumColumnas, NumFilas, SeparacionColumnas, SeparacionFilas, 1).
+%imprimir_lista(Lista, NumColumnas, NumFilas, SeparacionColumnas, SeparacionFilas) :-
+    %imprimir_filas(Lista, NumColumnas, NumFilas, SeparacionColumnas, SeparacionFilas, 1).
+%imprimir_lista(Lista, NumColumnas, NumFilas, SeparacionColumnas, SeparacionFilas).
 
 % Predicado auxiliar para imprimir las filas de la lista
 imprimir_filas([], _, _, _, _, _).
@@ -102,10 +103,10 @@ imprimir_filas([Fila|Filas], NumColumnas, NumFilas, SeparacionColumnas, Separaci
     imprimir_espacios(SeparacionFilas),
     FilaActual1 is FilaActual + 1,
     imprimir_filas(Filas, NumColumnas, NumFilas, SeparacionColumnas, SeparacionFilas, FilaActual1).
-imprimir_filas([_], NumColumnas, NumFilas, _, SeparacionFilas, FilaActual) :-
+imprimir_filas([_], _, NumFilas, _, _, FilaActual) :-
     FilaActual =:= NumFilas.
 
-imprimir_lista(Lista, NumColumnas, NumFilas, SeparacionColumnas, SeparacionFilas).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -129,10 +130,13 @@ pintaFila([X],_,_,_) :- color(X), write('x').
 pintaFila([X|L],Files,Columnes, IncColumnes) :- color(X), write('x'), 
                 C is Columnes+IncColumnes, gotoXY(Files,C), pintaFila(L,Files,C,IncColumnes).
 
-mostraNonograma([],_,_,_,_).
-mostraNonograma([X|L],Files,Columnes,IncFiles, IncColumnes):- gotoXY(Files, Columnes),
-                                F is Files+IncFiles, pintaFila(X,Files,Columnes,IncColumnes), 
-                                mostraNonograma(L,F,Columnes,IncFiles,IncColumnes).
+
+mostraNonogramaAux([],_,_,_,_).
+mostraNonogramaAux([X|L],Files,Columnes,IncFiles, IncColumnes) :- gotoXY(Files, Columnes),
+                                F is Files+IncFiles,  pintaFila(X,Files,Columnes,IncColumnes), 
+                                mostraNonogramaAux(L,F,Columnes,IncFiles,IncColumnes).
+
+mostraNonograma(Nono,Files,Columnes,IncFiles, IncColumnes) :- mostraNonogramaAux(Nono,Files,Columnes,IncFiles,IncColumnes).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -184,8 +188,8 @@ extreu([X|L1],[[no_seguits,X,N]|L2]):-vegades(X,[X|L1],N),!,borrar(X,[X|L1],L3),
 %%% 5. Pintar les pistes d’una descripció donada %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-mostraNonograma(DescripcioHoritzontal, F,C,FInc,CInc). 
-mostraNonograma(DescripcioVertical, F,C, FInc,CInc).
+mostraPistesHoritzontals(DescripcioHoritzontal, F,C,FInc,CInc). 
+mostraPistesVerticals(DescripcioVertical, F,C, FInc,CInc).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
