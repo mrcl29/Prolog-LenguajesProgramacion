@@ -129,11 +129,10 @@ pintaFila([X],_,_,_) :- color(X), write('x').
 pintaFila([X|L],Files,Columnes, IncColumnes) :- color(X), write('x'), 
                 C is Columnes+IncColumnes, gotoXY(Files,C), pintaFila(L,Files,C,IncColumnes).
 
-mostraNonograma(Nono,Files,Columnes,IncFiles, IncColumnes) :- mostraNonogramaAux(Nono,Files,Columnes,IncFiles,IncColumnes).
-mostraNonogramaAux([],_,_,_,_).
-mostraNonogramaAux([X|L],Files,Columnes,IncFiles, IncColumnes) :- gotoXY(Files, Columnes),
-                                F is Files+IncFiles,  pintaFila(X,Files,Columnes,IncColumnes), 
-                                mostraNonogramaAux(L,F,Columnes,IncFiles,IncColumnes).
+mostraNonograma([],_,_,_,_).
+mostraNonograma([X|L],Files,Columnes,IncFiles, IncColumnes):- gotoXY(Files, Columnes),
+                                F is Files+IncFiles, pintaFila(X,Files,Columnes,IncColumnes), 
+                                mostraNonograma(L,F,Columnes,IncFiles,IncColumnes).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
