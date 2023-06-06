@@ -19,7 +19,7 @@ color(cel) :- write("\e[1;96m").
 
 %Esborrar un element llista
 borrar(_,[],[]).
-borrar(X,[X|L],L).
+borrar(X,[X|L],L1):-borrar(X,L,L1).
 borrar(X,[Y|L1],[Y|L2]):-borrar(X,L1,L2).
 
 % Predicado auxiliar para obtener los primeros elementos de las listas
@@ -35,19 +35,45 @@ eliminar_primers([[_|Resto]|RestoFilas], [Resto|ListaResto]) :-
 % Predicado principal para construir la nueva lista de listas y mostrarla como matriz
 trasposta([P1|R], L) :-
     length(P1, Longitud),
-    traspostaAux([P1|R], L, Longitud),
-    imprimir_matriz(L),nl,!.
+    traspostaAux([P1|R], L, Longitud),limpiar(L),!.
 
 % Caso recursivo: construir la nueva lista de listas
-traspostaAux([], [], _).
+traspostaAux([], _, _).
 traspostaAux(_, _, 0).
-traspostaAux(ListaOriginal, NuevaLista, Longitud) :-
+traspostaAux(ListaOriginal, [PrimerosElementos|RestoNuevaLista], Longitud) :-
     Longitud > 0,
     primers_elements(ListaOriginal, PrimerosElementos),
     eliminar_primers(ListaOriginal, RestoElementos),
     LongitudNueva is Longitud - 1,
-    traspostaAux(RestoElementos, RestoNuevaLista, LongitudNueva),
-    NuevaLista = [PrimerosElementos|RestoNuevaLista].
+    traspostaAux(RestoElementos, RestoNuevaLista, LongitudNueva).
+
+limpiar([]).
+limpiar([Fila|Resto]) :-
+    limpiar_aux(Fila),
+    limpiar(Resto).
+limpiar_aux([]).
+limpiar_aux([Elemento|Resto]) :-
+    limpiar_aux(Resto).
+
+% Conta les aparicions de un element dins una llista
+vegades(_, [], 0).
+vegades(Elemento, [Elemento|Resto], N) :-
+    vegades(Elemento, Resto, N1),
+    !,N is N1 + 1.
+vegades(Elemento, [_|Resto], N) :-
+    vegades(Elemento, Resto, N).
+
+seguits(_, 0, _).
+seguits(X, N, [X|Resto]) :-
+    !,seguits_aux(X, [X|Resto], N).
+seguits(X, N, [_|Resto]) :-
+    seguits(X, N, Resto).
+
+seguits_aux(_, [], 0).
+seguits_aux(Elemento, [Elemento|Resto], N) :-
+    seguits_aux(Elemento, Resto, N1),
+    !,N is N1 + 1.
+
 
 % Predicado auxiliar para imprimir espacios en blanco
 imprimir_espacios(0).
@@ -103,7 +129,7 @@ pintaFila([X],_,_,_) :- color(X), write('x').
 pintaFila([X|L],Files,Columnes, IncColumnes) :- color(X), write('x'), 
                 C is Columnes+IncColumnes, gotoXY(Files,C), pintaFila(L,Files,C,IncColumnes).
 
-mostraNonograma(Nono,Files,Columnes,IncFiles, IncColumnes) :- cls, mostraNonogramaAux(Nono,Files,Columnes,IncFiles,IncColumnes).
+mostraNonograma(Nono,Files,Columnes,IncFiles, IncColumnes) :- mostraNonogramaAux(Nono,Files,Columnes,IncFiles,IncColumnes).
 mostraNonogramaAux([],_,_,_,_).
 mostraNonogramaAux([X|L],Files,Columnes,IncFiles, IncColumnes) :- gotoXY(Files, Columnes),
                                 F is Files+IncFiles,  pintaFila(X,Files,Columnes,IncColumnes), 
@@ -127,7 +153,7 @@ ferNonogramaAux(Colors,Longitud,Files,Columnes,[X|Z]) :- afegirFila(Colors,Longi
         ferNonogramaAux(Colors,Longitud,F,Columnes,Z).
 
 ferNonograma([],_,_,[]).
-ferNonograma(Colors,Files,Columnes,Nono) :- length(Colors,Longitud), ferNonogramaAux(Colors,Longitud,Files,Columnes,Nono), mostraNonograma(Nono,3,5,1,3).
+ferNonograma(Colors,Files,Columnes,Nono) :- length(Colors,Longitud), ferNonogramaAux(Colors,Longitud,Files,Columnes,Nono),cls, mostraNonograma(Nono,3,5,1,3).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -139,21 +165,17 @@ ferNonograma(Colors,Files,Columnes,Nono) :- length(Colors,Longitud), ferNonogram
 %%% sigui la descripció de les files i la segona la descripció de les columnes %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-descriuNonograma(Nono,[DescripcióHoritzontal,DescripcióVertical]):-
-treuPistes(Nono,DescripcióHoritzontal),
-trasposta(Nono,NonoAux),
-treuPistes(Nono,DescripcióVertical),
+descriuNonograma(Nono, [DescripcioHoritzontal, DescripcioVertical]):-
+treuPistes(Nono, DescripcioHoritzontal),
+trasposta(Nono, NonoAux),
+treuPistes(NonoAux, DescripcioVertical).
 
 treuPistes([],[]).
 treuPistes([X|L1],[Y|L2]):-extreu(X,Y),treuPistes(L1,L2).
 extreu([],[]).
 extreu([X|L1],[[seguits,X,1]|L2]):-vegades(X,[X|L1],1),!,extreu(L1,L2).   %seguits_color_1
-extreu([X|L1],[[seguits,X,N]|L2]):-vegades(X,[X|L1],N),seguits(N,X,[X|L1]),!,borrar(X,[X|L],L3),extreu(L3,L2).   %seguits_color_N
-extreu([X,L1],[[no_seguits,X,N]|L2]):-vegades(X,[X|L1],N),!,borrar(X,[X|L1],L3),extreu(L3,L1).   %no_seguits_color_N
-
-%Pintar_Pistes
-mostraPistesHoritzontals(DescripcióHoritzontal, F,C,FInc,CInc). 
-mostraPistesVerticals(DescripcióVertical, F,C, FInc,CInc).
+extreu([X|L1],[[seguits,X,N]|L2]):-vegades(X,[X|L1],N),seguits(X,N,[X|L1]),!,borrar(X,[X|L1],L3),extreu(L3,L2).   %seguits_color_N
+extreu([X|L1],[[no_seguits,X,N]|L2]):-vegades(X,[X|L1],N),!,borrar(X,[X|L1],L3),extreu(L3,L2).   %no_seguits_color_N
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -163,7 +185,8 @@ mostraPistesVerticals(DescripcióVertical, F,C, FInc,CInc).
 %%% 5. Pintar les pistes d’una descripció donada %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+mostraNonograma(DescripcioHoritzontal, F,C,FInc,CInc). 
+mostraNonograma(DescripcioVertical, F,C, FInc,CInc).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
