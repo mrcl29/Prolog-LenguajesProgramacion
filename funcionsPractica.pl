@@ -201,11 +201,22 @@ pintaFilaPistes([X|L],F,C,CInc) :- treureText(X,[Color,Numero]), gotoXY(F,C), co
 mostraPistesHoritzontals([],_,_,_,_).
 mostraPistesHoritzontals([X|L], F,C,FInc,CInc) :- pintaFilaPistes(X,F,C,CInc),F1 is F+FInc, mostraPistesHoritzontals(L,F1,C,FInc,CInc).
 
-%mostraPistesVerticals(DescripcioVertical, F,C, FInc,CInc).
 
 %per provar com va
 %mostraPistesHoritzontals([[[seguits,vermell,3],[no_seguits, verd, 2], [seguits, lila,1]],[[seguits,vermell,3],[no_seguits, verd, 2], [seguits, lila,1]]],8,1,1,3).
 
+pintaColumnaPistes([],_,_,_).
+pintaColumnaPistes([X|L],F,C,FInc) :- treureText(X,[Color,_,Numero,_]),!,C2 is C-1, gotoXY(F,C2),
+        color(Color),write('<'),write(Numero),write('>'), F1 is F+ FInc, pintaColumnaPistes(L,F1,C,FInc).
+pintaColumnaPistes([X|L],F,C,FInc) :- treureText(X,[Color,Numero]), gotoXY(F,C), color(Color),
+    write(Numero), F1 is F+1, pintaColumnaPistes(L,F1,C,FInc).
+
+mostraPistesVerticals([],_,_,_,_).
+mostraPistesVerticals([X|L],F,C,FInc,CInc) :- pintaColumnaPistes(X,F,C,FInc), C1 is C+CInc,
+        mostraPistesVerticals(L,F,C1,FInc,CInc).
+
+%prova per veure com va
+%mostraPistesVerticals([[[seguits,vermell,3],[no_seguits, verd, 2], [seguits, lila,1]],[[seguits,vermell,3],[no_seguits, verd, 2], [seguits, lila,1]]],1,8,1,3).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
