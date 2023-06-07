@@ -193,7 +193,7 @@ treureText([seguits,Y,N],[Y,<,N,>]) :- N > 1.
 treureText([no_seguits,Y,N],[Y,N]).
 
 pintaFilaPistes([],_,_,_).
-pintaFilaPistes([X|L],F,C,CInc) :- treureText(X,[Color,A,Numero,B]),!, gotoXY(F,C), color(Color), write('<'), 
+pintaFilaPistes([X|L],F,C,CInc) :- treureText(X,[Color,_,Numero,_]),!, gotoXY(F,C), color(Color), write('<'), 
         write(Numero), write('>'), C1 is C+CInc+2, pintaFilaPistes(L,F,C1,CInc).
 
 pintaFilaPistes([X|L],F,C,CInc) :- treureText(X,[Color,Numero]), gotoXY(F,C), color(Color),  write(Numero), C1 is C+CInc, pintaFilaPistes(L,F,C1,CInc).
@@ -201,7 +201,7 @@ pintaFilaPistes([X|L],F,C,CInc) :- treureText(X,[Color,Numero]), gotoXY(F,C), co
 mostraPistesHoritzontals([],_,_,_,_).
 mostraPistesHoritzontals([X|L], F,C,FInc,CInc) :- pintaFilaPistes(X,F,C,CInc),F1 is F+FInc, mostraPistesHoritzontals(L,F1,C,FInc,CInc).
 
-mostraPistesVerticals(DescripcioVertical, F,C, FInc,CInc).
+%mostraPistesVerticals(DescripcioVertical, F,C, FInc,CInc).
 
 %per provar com va
 %mostraPistesHoritzontals([[[seguits,vermell,3],[no_seguits, verd, 2], [seguits, lila,1]],[[seguits,vermell,3],[no_seguits, verd, 2], [seguits, lila,1]]],8,1,1,3).
