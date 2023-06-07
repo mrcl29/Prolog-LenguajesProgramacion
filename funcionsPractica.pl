@@ -156,7 +156,7 @@ ferNonogramaAux(Colors,Longitud,Files,Columnes,[X|Z]) :- afegirFila(Colors,Longi
         ferNonogramaAux(Colors,Longitud,F,Columnes,Z).
 
 ferNonograma([],_,_,[]).
-ferNonograma(Colors,Files,Columnes,Nono) :- length(Colors,Longitud), ferNonogramaAux(Colors,Longitud,Files,Columnes,Nono),cls, mostraNonograma(Nono,3,5,1,3).
+ferNonograma(Colors,Files,Columnes,_) :- length(Colors,Longitud), ferNonogramaAux(Colors,Longitud,Files,Columnes,Nono),cls, mostraNonograma(Nono,8,8,1,3).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -187,9 +187,24 @@ extreu([X|L1],[[no_seguits,X,N]|L2]):-vegades(X,[X|L1],N),!,borrar(X,[X|L1],L3),
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% 5. Pintar les pistes d’una descripció donada %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+treureText([],[]).
+treureText([seguits,Y,1],[Y,1]).
+treureText([seguits,Y,N],[Y,<,N,>]) :- N > 1.
+treureText([no_seguits,Y,N],[Y,N]).
 
-mostraPistesHoritzontals(DescripcioHoritzontal, F,C,FInc,CInc). 
+pintaFilaPistes([],_,_,_).
+pintaFilaPistes([X|L],F,C,CInc) :- treureText(X,[Color,A,Numero,B]),!, gotoXY(F,C), color(Color), write('<'), 
+        write(Numero), write('>'), C1 is C+CInc+2, pintaFilaPistes(L,F,C1,CInc).
+
+pintaFilaPistes([X|L],F,C,CInc) :- treureText(X,[Color,Numero]), gotoXY(F,C), color(Color),  write(Numero), C1 is C+CInc, pintaFilaPistes(L,F,C1,CInc).
+
+mostraPistesHoritzontals([],_,_,_,_).
+mostraPistesHoritzontals([X|L], F,C,FInc,CInc) :- pintaFilaPistes(X,F,C,CInc),F1 is F+FInc, mostraPistesHoritzontals(L,F1,C,FInc,CInc).
+
 mostraPistesVerticals(DescripcioVertical, F,C, FInc,CInc).
+
+%per provar com va
+%mostraPistesHoritzontals([[[seguits,vermell,3],[no_seguits, verd, 2], [seguits, lila,1]],[[seguits,vermell,3],[no_seguits, verd, 2], [seguits, lila,1]]],8,1,1,3).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
