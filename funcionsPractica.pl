@@ -74,6 +74,31 @@ seguits_aux(Elemento, [Elemento|Resto], N) :-
     seguits_aux(Elemento, Resto, N1),
     !,N is N1 + 1.
 
+% Verificar si un elemento está en una lista
+pertany(Elem, [Elem|_]).
+pertany(Elem, [_|Resto]) :-
+    pertany(Elem, Resto).
+
+% Permutar una lista
+permutacio([], []).
+permutacio(Lista, [Elem|Resto]) :-
+    pertany(Elem, Lista),
+    select(Elem, Lista, RestoPermutado),
+    permutacio(RestoPermutado, Resto).
+
+% Verificar si un elemento es una lista
+es_lista([]).
+es_lista([_|_]).
+
+% Aplanar una lista
+aplanar([], []).
+aplanar([Elem|Resto], [Elem|Resultado]) :-
+    not(es_lista(Elem)),
+    aplanar(Resto, Resultado).
+aplanar([Lista|Resto], Resultado) :-
+    aplanar(Lista, Aplanada),
+    aplanar(Resto, RestoAplanado),
+    append(Aplanada, RestoAplanado, Resultado).
 
 % Predicado auxiliar para imprimir espacios en blanco
 imprimir_espacios(0).
@@ -226,8 +251,22 @@ mostraPistesVerticals([X|L],F,C,FInc,CInc) :- pintaColumnaPistes(X,F,C,FInc), C1
 %%% les files i columnes %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+resolNonograma([PistesHoritzontals,PistesVerticals|_], Solucio):-
+resolNonogramaAux(PistesHoritzontals,PistesVerticals,Solucio).
 
+resolNonogramaAux([F1|RestaHoritzontals],[C1|RestaVerticals],Solucio):-
+    crearLlista(F1,L1),
+    aplanar(L1,L).
 
+crearLlista([],[]).
+crearLlista([[_,Y,Z]|R],[L1|L]):-
+    crearLlistaAux(Y,Z,L1),
+    crearLlista(R,L).
+
+crearLlistaAux(_,0,[]).
+crearLlistaAux(X,N,[X|L]):-
+    N1 is N-1,
+    crearLlistaAux(X,N1,L).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

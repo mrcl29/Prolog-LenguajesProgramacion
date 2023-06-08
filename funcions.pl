@@ -1,7 +1,3 @@
-%Pertany un element a una llista
-pertany(X,[X|L]).
-pertany(X,[Y|L]):-pertany(X,L).
-
 %Juntar dues llistes
 afegir([],L,L).
 afegir([X|L1],L2,[X|L3]):-afegir(L1,L2,L3).
@@ -28,9 +24,17 @@ maxim([_|L],Z):-maxim(L,Z).
 inserir(E,L,[E|L]).
 inserir(E,[X|Y],[X|Z]):-inserir(E,Y,Z).
 
-%Permutacio llista
-permutacio([],[]).
-permutacio([X|L],Z):-permutacio(Y,L), inserir(X,L,Z).
+% Verificar si un elemento está en una lista
+pertany(Elem, [Elem|_]).
+pertany(Elem, [_|Resto]) :-
+    pertany(Elem, Resto).
+
+% Permutar una lista
+permutacio([], []).
+permutacio(Lista, [Elem|Resto]) :-
+    pertany(Elem, Lista),
+    select(Elem, Lista, RestoPermutado),
+    permutacio(RestoPermutado, Resto).
 
 %Aplanar_una_llista
 aplanar([],[]).
