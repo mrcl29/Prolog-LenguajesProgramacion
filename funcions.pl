@@ -1,7 +1,3 @@
-%Juntar dues llistes
-afegir([],L,L).
-afegir([X|L1],L2,[X|L3]):-afegir(L1,L2,L3).
-
 %Trobar darrer element
 darrer([X],Y).
 darrer([X|L],Y):-darrer(L,Y).
@@ -20,21 +16,19 @@ maxim([X],X).
 maxim([X,Y|L],Z):-X>Y, maxim([X|L],Z).
 maxim([_|L],Z):-maxim(L,Z).
 
-%Inserir element a llista
-inserir(E,L,[E|L]).
-inserir(E,[X|Y],[X|Z]):-inserir(E,Y,Z).
-
 % Verificar si un elemento está en una lista
 pertany(Elem, [Elem|_]).
 pertany(Elem, [_|Resto]) :-
     pertany(Elem, Resto).
 
-% Permutar una lista
-permutacio([], []).
-permutacio(Lista, [Elem|Resto]) :-
-    pertany(Elem, Lista),
-    select(Elem, Lista, RestoPermutado),
-    permutacio(RestoPermutado, Resto).
+afegir([],L,L).
+afegir([X|L1],L2,[X|L3]) :- afegir(L1,L2,L3).
+
+inserir(E,L,Y) :- afegir([E],L,Y).
+inserir(E,[X|Y],[X|Z]):-inserir(E,Y,Z).
+
+permutacio([],[]).
+permutacio([X|Y],Z) :- permutacio(Y,L), inserir(X,L,Z).
 
 %Aplanar_una_llista
 aplanar([],[]).

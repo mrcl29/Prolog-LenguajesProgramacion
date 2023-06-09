@@ -63,16 +63,8 @@ vegades(Elemento, [Elemento|Resto], N) :-
 vegades(Elemento, [_|Resto], N) :-
     vegades(Elemento, Resto, N).
 
-seguits(_, 0, _).
-seguits(X, N, [X|Resto]) :-
-    !,seguits_aux(X, [X|Resto], N).
-seguits(X, N, [_|Resto]) :-
-    seguits(X, N, Resto).
-
-seguits_aux(_, [], 0).
-seguits_aux(Elemento, [Elemento|Resto], N) :-
-    seguits_aux(Elemento, Resto, N1),
-    !,N is N1 + 1.
+seguits(_,0,_) :- !.
+seguits(Color,N,[Color|Z]) :- N1 is N-1, seguits(Color,N1,Z).
 
 % Verificar si un elemento está en una lista
 pertany(Elem, [Elem|_]).
@@ -80,11 +72,14 @@ pertany(Elem, [_|Resto]) :-
     pertany(Elem, Resto).
 
 % Permutar una lista
-permutacio([], []).
-permutacio(Lista, [Elem|Resto]) :-
-    pertany(Elem, Lista),
-    select(Elem, Lista, RestoPermutado),
-    permutacio(RestoPermutado, Resto).
+afegir([],L,L).
+afegir([X|L1],L2,[X|L3]) :- afegir(L1,L2,L3).
+
+inserir(E,L,Y) :- afegir([E],L,Y).
+inserir(E,[X|Y],[X|Z]):-inserir(E,Y,Z).
+
+permutacio([],[]).
+permutacio([X|Y],Z) :- permutacio(Y,L), inserir(X,L,Z).
 
 % Verificar si un elemento es una lista
 es_lista([]).
@@ -173,15 +168,15 @@ mostraNonograma(Nono,Files,Columnes,IncFiles, IncColumnes) :- mostraNonogramaAux
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 afegirFila(Colors,Longitud1,1,[Z]):- Longitud2 is Longitud1+1, random(1,Longitud2,Rnd), nth1(Rnd,Colors,Z).
-afegirFila(Colors,Longitud1,Columna,[X|Z]):- Longitud2 is Longitud1+1, random(1,Longitud2,Rnd), nth1(Rnd,Colors,X), C is Columna-1,
+afegirFila(Colors,Longitud1,Columna,[X|Z]):- Columna>1,Longitud2 is Longitud1+1, random(1,Longitud2,Rnd), nth1(Rnd,Colors,X), C is Columna-1,
         afegirFila(Colors,Longitud1,C,Z).
 
 ferNonogramaAux(Colors,Longitud,1,Columnes,[Z]) :- afegirFila(Colors,Longitud,Columnes,Z).
-ferNonogramaAux(Colors,Longitud,Files,Columnes,[X|Z]) :- afegirFila(Colors,Longitud,Columnes,X), F is Files-1, 
+ferNonogramaAux(Colors,Longitud,Files,Columnes,[X|Z]) :- Files>1, afegirFila(Colors,Longitud,Columnes,X), F is Files-1, 
         ferNonogramaAux(Colors,Longitud,F,Columnes,Z).
 
 ferNonograma([],_,_,[]).
-ferNonograma(Colors,Files,Columnes,_) :- length(Colors,Longitud), ferNonogramaAux(Colors,Longitud,Files,Columnes,Nono),cls, mostraNonograma(Nono,8,8,1,3).
+ferNonograma(Colors,Files,Columnes,Nono) :- length(Colors,Longitud), ferNonogramaAux(Colors,Longitud,Files,Columnes,Nono).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -193,17 +188,18 @@ ferNonograma(Colors,Files,Columnes,_) :- length(Colors,Longitud), ferNonogramaAu
 %%% sigui la descripció de les files i la segona la descripció de les columnes %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-descriuNonograma(Nono, [DescripcioHoritzontal, DescripcioVertical]):-
-treuPistes(Nono, DescripcioHoritzontal),
-trasposta(Nono, NonoAux),
-treuPistes(NonoAux, DescripcioVertical).
-
 treuPistes([],[]).
 treuPistes([X|L1],[Y|L2]):-extreu(X,Y),treuPistes(L1,L2).
 extreu([],[]).
 extreu([X|L1],[[seguits,X,1]|L2]):-vegades(X,[X|L1],1),!,extreu(L1,L2).   %seguits_color_1
 extreu([X|L1],[[seguits,X,N]|L2]):-vegades(X,[X|L1],N),seguits(X,N,[X|L1]),!,borrar(X,[X|L1],L3),extreu(L3,L2).   %seguits_color_N
 extreu([X|L1],[[no_seguits,X,N]|L2]):-vegades(X,[X|L1],N),!,borrar(X,[X|L1],L3),extreu(L3,L2).   %no_seguits_color_N
+
+
+descriuNonograma(Nono, [DescripcioHoritzontal, DescripcioVertical]):-
+treuPistes(Nono, DescripcioHoritzontal),
+trasposta(Nono, NonoAux),
+treuPistes(NonoAux, DescripcioVertical).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -251,22 +247,22 @@ mostraPistesVerticals([X|L],F,C,FInc,CInc) :- pintaColumnaPistes(X,F,C,FInc), C1
 %%% les files i columnes %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-resolNonograma([PistesHoritzontals,PistesVerticals|_], Solucio):-
-resolNonogramaAux(PistesHoritzontals,PistesVerticals,Solucio).
+afegeixColors(Color,1,[Color]) :- !.
+afegeixColors(Color,N,[Color|Y]) :- N1 is N-1,afegeixColors(Color,N1,Y).
 
-resolNonogramaAux([F1|RestaHoritzontals],[C1|RestaVerticals],Solucio):-
-    crearLlista(F1,L1),
-    aplanar(L1,L).
+generaFila([],[]).
+generaFila([[_,Color,Numero]|L],Z) :- afegeixColors(Color,Numero,Y), generaFila(L,Z1), append(Y,Z1,Z).
 
-crearLlista([],[]).
-crearLlista([[_,Y,Z]|R],[L1|L]):-
-    crearLlistaAux(Y,Z,L1),
-    crearLlista(R,L).
+nonogramaPistes([],[]).
+nonogramaPistes([X|L],Z3) :- generaFila(X,Z), permutacio(Z,Y), append([Y],[],Y1), treuPistes(Y1,Y2),
+    Y2 = [X], nonogramaPistes(L,Z4), append(Y2,Z4,Z3).
 
-crearLlistaAux(_,0,[]).
-crearLlistaAux(X,N,[X|L]):-
-    N1 is N-1,
-    crearLlistaAux(X,N1,L).
+%nonogramaPistes([[[seguits,verd,2],[seguits,vermell,2]],[[no_seguits,lila,2],[no_seguits,blau,2]]],Z).
+
+resolNonograma([],[]).
+resolNonograma([Phoritzontals,Pverticals],Nono) :-  nonogramaPistes(Phoritzontals,Nono).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
