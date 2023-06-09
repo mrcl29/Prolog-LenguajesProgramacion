@@ -189,7 +189,8 @@ ferNonograma(Colors,Files,Columnes,Nono) :- length(Colors,Longitud), ferNonogram
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 treuPistes([],[]).
-treuPistes([X|L1],[Y|L2]):-extreu(X,Y),treuPistes(L1,L2).
+treuPistes([X|L1],[Y|L2]):-extreu(X,Y),!,treuPistes(L1,L2).
+
 extreu([],[]).
 extreu([X|L1],[[seguits,X,1]|L2]):-vegades(X,[X|L1],1),!,extreu(L1,L2).   %seguits_color_1
 extreu([X|L1],[[seguits,X,N]|L2]):-vegades(X,[X|L1],N),seguits(X,N,[X|L1]),!,borrar(X,[X|L1],L3),extreu(L3,L2).   %seguits_color_N
