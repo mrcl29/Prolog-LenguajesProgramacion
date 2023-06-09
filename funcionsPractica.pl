@@ -188,13 +188,26 @@ ferNonograma(Colors,Files,Columnes,Nono) :- length(Colors,Longitud), ferNonogram
 %%% sigui la descripció de les files i la segona la descripció de les columnes %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+borrarPrimers(X,[],[]).
+borrarPrimers(X,[Y|L],[Y|L]) :- X \= Y, !.
+borrarPrimers(X,[X|L],Y) :- borrarPrimers(X,L,Y).
+
+canviaResta(X,[],[]).
+canviaResta(X,[Y|L],[Y|L1]) :- X \= Y,!, canviaResta(X,L,L1).
+canviaResta(X,[X|L],[p|L1]) :- canviaResta(X,L,L1).
+
+%idea: borram els X primers i la resta ho canviam per una 'p', aquesta p la botarem al metode extreu.
+borraNou(_,[],[]).
+borraNou(X,L,Z1) :- borrarPrimers(X,L,Z), canviaResta(X,Z,Z1).
+
 treuPistes([],[]).
 treuPistes([X|L1],[Y|L2]):-extreu(X,Y),!,treuPistes(L1,L2).
 
 extreu([],[]).
-extreu([X|L1],[[seguits,X,1]|L2]):-vegades(X,[X|L1],1),!,extreu(L1,L2).   %seguits_color_1
-extreu([X|L1],[[seguits,X,N]|L2]):-vegades(X,[X|L1],N),seguits(X,N,[X|L1]),!,borrar(X,[X|L1],L3),extreu(L3,L2).   %seguits_color_N
-extreu([X|L1],[[no_seguits,X,N]|L2]):-vegades(X,[X|L1],N),!,borrar(X,[X|L1],L3),extreu(L3,L2).   %no_seguits_color_N
+extreu([p|L1],L2) :- extreu(L1,L2). %botam les 'p' que hem afegit al metode borrarNou
+extreu([X|L1],[[seguits,X,1]|L2]):- vegades(X,[X|L1],1),!,extreu(L1,L2).   %seguits_color_1
+extreu([X|L1],[[seguits,X,N]|L2]):- vegades(X,[X|L1],N),seguits(X,N,[X|L1]),!,borrar(X,[X|L1],L3),extreu(L3,L2).   %seguits_color_N
+extreu([X|L1],[[no_seguits,X,N]|L2]):- vegades(X,[X|L1],N),!,borraNou(X,[X|L1],L3),extreu(L3,L2).   %no_seguits_color_N
 
 
 descriuNonograma(Nono, [DescripcioHoritzontal, DescripcioVertical]):-
@@ -255,8 +268,8 @@ generaFila([],[]).
 generaFila([[_,Color,Numero]|L],Z) :- afegeixColors(Color,Numero,Y), generaFila(L,Z1), append(Y,Z1,Z).
 
 nonogramaPistes([],[]).
-nonogramaPistes([X|L],Z3) :- generaFila(X,Z), permutacio(Z,Y), append([Y],[],Y1), treuPistes(Y1,Y2),
-    Y2 = [X], nonogramaPistes(L,Z4), append(Y2,Z4,Z3).
+nonogramaPistes([X|L],[Y|Z3]) :- generaFila(X,Z), permutacio(Z,Y), append([Y],[],Y1), treuPistes(Y1,Y2),
+    Y2 = [X], nonogramaPistes(L,Z3).
 
 %nonogramaPistes([[[seguits,verd,2],[seguits,vermell,2]],[[no_seguits,lila,2],[no_seguits,blau,2]]],Z).
 
