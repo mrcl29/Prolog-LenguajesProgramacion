@@ -112,6 +112,7 @@ mostraNonogramaAux([X|L],Files,Columnes,IncFiles, IncColumnes) :-
     pintaFila(X,Files,Columnes,IncColumnes), 
     mostraNonogramaAux(L,F,Columnes,IncFiles,IncColumnes).
 
+/*Funció que pinta una fila sencera*/
 pintaFila([X],_,_,_) :- 
     color(X), 
     write('x').
@@ -136,16 +137,23 @@ ferNonograma(Colors,Files,Columnes,Nono) :-
 
 ferNonogramaAux(Colors,Longitud,1,Columnes,[Z]) :- 
     afegirFila(Colors,Longitud,Columnes,Z).
+
 ferNonogramaAux(Colors,Longitud,Files,Columnes,[X|Z]) :- 
     Files>1, 
     afegirFila(Colors,Longitud,Columnes,X), 
     F is Files-1, 
     ferNonogramaAux(Colors,Longitud,F,Columnes,Z).
 
+/*Funcions que afegeixen a Z una fila de colors aleatòris dins la llista de Colors*/
+/*Per agafar aleatòriament aquests colors, necessitarem la longitud de la llista de colors i la llista de colors*/
+/*Empleam un ràndom per treure un número aleatòri entre la primera i darerra posició de la llista de colors*/
+/*Agafam el color que es troba a aquesta posició i l'afegim a la fila*/
+
 afegirFila(Colors,Longitud1,1,[Z]):- 
     Longitud2 is Longitud1+1, 
     random(1,Longitud2,Rnd), 
     nth1(Rnd,Colors,Z).
+
 afegirFila(Colors,Longitud1,Columna,[X|Z]):- 
     Columna>1,
     Longitud2 is Longitud1+1, 
@@ -194,18 +202,31 @@ extreu([X|L1],[[no_seguits,X,N]|L2]):-
 seguits(_,0,_) :- !.
 seguits(Color,N,[Color|Z]) :- N1 is N-1, seguits(Color,N1,Z).
 
-% Idea: borram els X primers i la resta ho canviam per una 'p', aquesta p la botarem al metode extreu.
+/*En el cas de que els colors es trobin seguits (seguits,vermell,2) no tenim problema en borrar-los.
+Ara bé, si no es troben seguits (no_seguits,vermell,2) i tenim un cas com [vermell,lila,vermell,lila],
+tenim un problema, i és que si borram els vermells així com ho hem fet amb els seguits ens quedarà una
+llista així [lila,lila]. Com podem veure, antes els colors lila eren no seguits, i ara es troben seguits.
+
+Per evitar això, si hem de borrar no seguits, exemple: [vermell,vermell,lila,vermell,lila]
+, el primer que farem es borrar els que sí estàn seguits i a la resta els sustituirem per una 'p'.
+Després de fer això, la llista queda d'aquesta manera: [lila,p,lila]. El que farem amb les 'p' a la funció principal
+és simplement passar d'elles*/
+
+/*borrarNou agafa per paràmetre una lletra i una llista on hi trobam aquesta lletra de manera no seguida*/
 borraNou(_,[],[]).
 borraNou(X,L,Z1) :- 
     borrarPrimers(X,L,Z), 
     canviaResta(X,Z,Z1).
 
+/*Agafa per paràmetre una lletra i una llista i borra totes aquestes lletres que es troben seguides a l'inici*/
 borrarPrimers(_,[],[]).
 borrarPrimers(X,[Y|L],[Y|L]) :- 
     X \= Y, !.
 borrarPrimers(X,[X|L],Y) :- 
     borrarPrimers(X,L,Y).
 
+/*Agafa per paràmetre una lletra i una llista que, en el nostre cas, ja no començarà per aquesta lletra
+Sustituïm aquesta lletra dins la llista per 'p's*/
 canviaResta(_,[],[]).
 canviaResta(X,[Y|L],[Y|L1]) :- X \= Y,!, canviaResta(X,L,L1).
 canviaResta(X,[X|L],[p|L1]) :- canviaResta(X,L,L1).
@@ -218,13 +239,25 @@ canviaResta(X,[X|L],[p|L1]) :- canviaResta(X,L,L1).
 %%% 5. Pintar les pistes d’una descripció donada %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+/*Funció que rep una llista de pistes i les pinta a partir d'una Fila F, una columna C i amb els seus increments
+respectius*/
 mostraPistesHoritzontals([],_,_,_,_).
 mostraPistesHoritzontals([X|L], F,C,FInc,CInc) :- 
     pintaFilaPistes(X,F,C,CInc),
     F1 is F+FInc, 
     mostraPistesHoritzontals(L,F1,C,FInc,CInc).
 
+/*Funció que pinta una fila de pistes*/
+/*Per paràmetre rebrà, per exemple: ([[seguides,verd,2],[no_seguides,lila,2],[seguides,vermella,1]],3,1,1)*
+el que farem primer es treure el text que surt d'aquestes pistes mitjançant la funció treureText.
+treureText ens tornarà una llista, que podrà tenir 2 formes: [Color,<,Numero,>] o [Color,Numero].
+El que feim es distingir aquestes 2 formes, si es tracta de la primera, definirem el color, després pintarem
+<, seguidament el número i per acabar un altre >
+Si es tracta de la segona, simplement definirem el color i pintarem el número*/
+
 pintaFilaPistes([],_,_,_).
+/*cas [Color,<,Numero,>]*/
+/*Veim que en aquest cas incrementam la columna en +2, això és per els dos caràcters extres pintats <>*/
 pintaFilaPistes([X|L],F,C,CInc) :- 
     treureText(X,[Color,_,Numero,_]),!, 
     gotoXY(F,C), 
@@ -234,6 +267,7 @@ pintaFilaPistes([X|L],F,C,CInc) :-
     write('>'), 
     C1 is C+CInc+2, 
     pintaFilaPistes(L,F,C1,CInc).
+/*cas [Color,Numero]*/
 pintaFilaPistes([X|L],F,C,CInc) :- 
     treureText(X,[Color,Numero]), 
     gotoXY(F,C), color(Color), 
@@ -241,6 +275,7 @@ pintaFilaPistes([X|L],F,C,CInc) :-
     C1 is C+CInc, 
     pintaFilaPistes(L,F,C1,CInc).
 
+/*Feim el mateix que a mostraPistesHoritzontals*/
 mostraPistesVerticals([],_,_,_,_).
     mostraPistesVerticals([X|L],F,C,FInc,CInc) :- 
     pintaColumnaPistes(X,F,C,FInc), C1 is C+CInc,
@@ -265,6 +300,7 @@ pintaColumnaPistes([X|L],F,C,FInc) :-
     F1 is F+1, 
     pintaColumnaPistes(L,F1,C,FInc).
 
+/*Funció qué donada una pista ens torna una llista de la forma: [Color,<,Numero,>] o [Color,Numero] */
 treureText([],[]).
 treureText([seguits,Y,1],[Y,1]).
 treureText([seguits,Y,N],[Y,<,N,>]) :- 
@@ -287,11 +323,22 @@ mostrarPistes([Phoritzontals,Pverticals],Fnono,Cnono):-
 %%% les files i columnes %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+/*Funció qué donades unes pistes, farà els següent:
+1) Fer un nonograma a partir de les pistes Horitzontals
+2) Fer un nonograma a partir de les pistes Verticals
+3) Comprovar que la trasposta d'un és igual a l'altre*/
 resolNonograma([],[]).
 resolNonograma([PistesHoritzontals,PistesVerticals], NonoHoritzontal):-  
     nonogramaPistes(PistesHoritzontals,NonoHoritzontal),
     nonogramaPistes(PistesVerticals,NonoVertical),
     verificacio(NonoHoritzontal,NonoVertical).
+
+/*Funció que fa:
+1) agafa una fila d'una llista, per exemple [[seguits,verd,1],[no_seguits,vermell,2]] i la converteix
+en una altre llista: [verd,vermell,vermell]
+
+2) Permuta [verd,vermell,vermell] i treu les pistes d'aquesta permutació. Si les pistes d'aquesta permutació
+coincideixen amb les pistes de la fila, llavors afegirem aquesta permutació a Z3*/
 
 nonogramaPistes([],[]).
 nonogramaPistes([X|L],[Y|Z3]) :- 
@@ -302,15 +349,18 @@ nonogramaPistes([X|L],[Y|Z3]) :-
     Y2 = [X], 
     nonogramaPistes(L,Z3).
 
+/*Funció que, donada una llista de pistes, la converteix a una llista de colors*/
 generaFila([],[]).
 generaFila([[_,Color,Numero]|L],Z) :- 
     afegeixColors(Color,Numero,Y), 
     generaFila(L,Z1), 
     append(Y,Z1,Z).
 
+/*Aquesta funció rep per paràmetre un color, el seu número i retorna una llista amb aquest nombre de colors*/
 afegeixColors(Color,1,[Color]) :- !.
 afegeixColors(Color,N,[Color|Y]) :- N1 is N-1,afegeixColors(Color,N1,Y).
 
+/*Verifica que X es transposta de Y*/
 verificacio(X,Y):-
     trasposta(Y,X).
 
