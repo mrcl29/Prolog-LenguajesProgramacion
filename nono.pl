@@ -87,6 +87,7 @@ afegir([X|L1],L2,[X|L3]) :- afegir(L1,L2,L3).
 %%% 1. Escriure per la pantalla, les files d’un nonograma %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+/* Escriu les llistes a cada línia de la matriu pasada per paràmetre*/
 escriuNonograma([]).
 escriuNonograma([X|L1]):-
     write(X),
@@ -105,14 +106,15 @@ escriuNonograma([X|L1]):-
 mostraNonograma(Nono,Files,Columnes,IncFiles, IncColumnes) :- 
     mostraNonogramaAux(Nono,Files,Columnes,IncFiles,IncColumnes).
 
+/* Funció recursiva que mou el pinzell a la posició proposada i pinta una llista del Nonograma*/
 mostraNonogramaAux([],_,_,_,_).
 mostraNonogramaAux([X|L],Files,Columnes,IncFiles, IncColumnes) :- 
     gotoXY(Files, Columnes),
-    F is Files+IncFiles,  
+    F is Files+IncFiles,  % Botam una línia avall la distància proposada
     pintaFila(X,Files,Columnes,IncColumnes), 
     mostraNonogramaAux(L,F,Columnes,IncFiles,IncColumnes).
 
-/*Funció que pinta una fila sencera*/
+/* Funció que pinta una fila sencera*/
 pintaFila([X],_,_,_) :- 
     color(X), 
     write('x').
@@ -135,9 +137,9 @@ ferNonograma(Colors,Files,Columnes,Nono) :-
     length(Colors,Longitud), 
     ferNonogramaAux(Colors,Longitud,Files,Columnes,Nono).
 
+/* Funció recursiva que crea una fila aleatòria d'un Nonograma*/
 ferNonogramaAux(Colors,Longitud,1,Columnes,[Z]) :- 
     afegirFila(Colors,Longitud,Columnes,Z).
-
 ferNonogramaAux(Colors,Longitud,Files,Columnes,[X|Z]) :- 
     Files>1, 
     afegirFila(Colors,Longitud,Columnes,X), 
@@ -153,7 +155,6 @@ afegirFila(Colors,Longitud1,1,[Z]):-
     Longitud2 is Longitud1+1, 
     random(1,Longitud2,Rnd), 
     nth1(Rnd,Colors,Z).
-
 afegirFila(Colors,Longitud1,Columna,[X|Z]):- 
     Columna>1,
     Longitud2 is Longitud1+1, 
@@ -172,33 +173,45 @@ afegirFila(Colors,Longitud1,Columna,[X|Z]):-
 %%% sigui la descripció de les files i la segona la descripció de les columnes %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+/* Per treure les llistes de pistes del Nonograma primer param la llista normal a
+treuPistes per treure les pistes horitzontals i després treim també les pistes 
+horitzontals de la matriu trasposta que correspondran amb les pistes verticals de 
+la matriu original*/
 descriuNonograma(Nono, [DescripcioHoritzontal, DescripcioVertical]):-
     treuPistes(Nono, DescripcioHoritzontal),
     trasposta(Nono, NonoAux),
     treuPistes(NonoAux, DescripcioVertical).
 
+/* Funció recursiva per treure les pistes d'un nonograma, 
+el paràmetre que pasem a 'extreu' serà una llista que correspon a una fila de la matriu*/
 treuPistes([],[]).
 treuPistes([X|L1],[Y|L2]):-
     extreu(X,Y),!,
     treuPistes(L1,L2).
 
+/* Donat una llista de colors per cada color diferent de la llista treu les seves característiques dins la llista*/
 extreu([],[]).
+/* Aquí botam un color que ja hem procesat*/
 extreu([p|L1],L2) :- 
     extreu(L1,L2). % Botam les 'p' que hem afegit al metode borrarNou
+/* Aquí comprovam si el color de la llista es únic en aquesta*/
 extreu([X|L1],[[seguits,X,1]|L2]):- 
     vegades(X,[X|L1],1),!,
     extreu(L1,L2).   % seguits_color_1
+/* Aquí comprovam si el color de la llista que ja sabem que no és únic surt varis pics i aquests son seguits*/
 extreu([X|L1],[[seguits,X,N]|L2]):- 
     vegades(X,[X|L1],N),
     seguits(X,N,[X|L1]),!,
     borrar(X,[X|L1],L3),
     extreu(L3,L2).   % seguits_color_N
+/* Aquí ja sabem que el color de la llista surt varis pics i no estan tots seguits, 
+els colors iguals restants de la llista seràn reemplaçats*/
 extreu([X|L1],[[no_seguits,X,N]|L2]):- 
     vegades(X,[X|L1],N),!,
     borraNou(X,[X|L1],L3),
     extreu(L3,L2).   % no_seguits_color_N
 
-% Comprova que el color estigui seguit
+/* Comprova que el color estigui seguit*/
 seguits(_,0,_) :- !.
 seguits(Color,N,[Color|Z]) :- N1 is N-1, seguits(Color,N1,Z).
 
@@ -368,7 +381,7 @@ verificacio(X,Y):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%% Donat una llista de colors i un tamany de matriu crea un Nonograma aleatori, treu les pistes, mostra les pistes, resol el Nonograma i mostra el Nonograma resolt %%%
+/* Donat una llista de colors i un tamany de matriu crea un Nonograma aleatori, treu les pistes, mostra les pistes, resol el Nonograma i mostra el Nonograma resolt*/
 execucio(LlistaColors,F,C):-
     cls,
     ferNonograma(LlistaColors,F,C,Nono),
